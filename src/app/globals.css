@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter);
+}
+
+@theme {
+  --color-lilaq-bg: #e4b4ff;
+  --color-ink: #1e2939;
+  --color-body: #364153;
+  --color-subtle: #4a5565;
+  --color-violet-title: #8200db;
+
+  --animate-slide-in: slide-in 0.5s ease-in-out;
+
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+  }
+}
+
+/* White panel lifted off the purple background. */
+@utility card {
+  background-color: #fff;
+  filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.1))
+    drop-shadow(0 2px 2px rgb(0 0 0 / 0.1));
+}
+
+body {
+  background: var(--color-lilaq-bg);
+  color: var(--color-ink);
+}
