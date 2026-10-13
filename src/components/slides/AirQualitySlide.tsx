@@ -1,12 +1,24 @@
 /* eslint-disable @next/next/no-img-element -- Figma SVG icons */
 import type { CSSProperties, ReactNode } from "react";
+import AutoRefresh from "@/components/AutoRefresh";
 import SlideHeader from "@/components/SlideHeader";
-import { campusAqi, sensors } from "@/data/airQuality";
 import {
   AQI_CATEGORIES,
   getAqiCategory,
   getAqiScalePosition,
+  pm25ToAqi,
 } from "@/lib/aqi";
+import {
+  CURRENT_REVALIDATE_SECONDS,
+  fetchCurrentReadings,
+  type CurrentReading,
+} from "@/lib/purpleair";
+
+const OFFLINE_COLOR = "#9ca3af";
+const OFFLINE_TEXT = "#1e2939";
+// The tips are the same at every AQI, so their icons sit on a neutral tint
+// rather than a color that reads as good or bad.
+const TIP_ICON_BG = "#f3e8ff";
 
 const scaleLabels = [
   "Good (0)",
@@ -38,11 +50,23 @@ function WindIcon() {
   );
 }
 
-export default function AirQualitySlide() {
-  const category = getAqiCategory(campusAqi);
+export default async function AirQualitySlide() {
+  const readings = await fetchCurrentReadings();
+  // Campus AQI is the AQI of the mean PM2.5 across the sensors reporting.
+  const reporting = readings.flatMap((r) => (r.pm25 === null ? [] : [r.pm25]));
+  const campusAqi =
+    reporting.length > 0
+      ? pm25ToAqi(reporting.reduce((sum, v) => sum + v, 0) / reporting.length)
+      : null;
+  const category = campusAqi === null ? null : getAqiCategory(campusAqi);
+  const heroStyle = {
+    backgroundColor: category?.color ?? OFFLINE_COLOR,
+    color: category?.text ?? OFFLINE_TEXT,
+  };
 
   return (
     <>
+      <AutoRefresh seconds={CURRENT_REVALIDATE_SECONDS} />
       <SlideHeader title="Air Quality Index" variant="bright" />
       <div className="flex flex-col gap-6 px-4 pt-6 pb-10 lg:gap-8 lg:px-[52px] lg:pt-[67px] lg:pb-0">
         <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
@@ -50,16 +74,16 @@ export default function AirQualitySlide() {
           <div className="flex flex-col gap-6 lg:w-[889px] lg:shrink-0">
             <div className="flex gap-4 lg:gap-12">
               <div
-                className="card flex h-36 w-36 shrink-0 items-center justify-center rounded-2xl text-[72px] leading-none text-white lg:h-[282px] lg:w-[315px] lg:text-[140px]"
-                style={{ backgroundColor: category.color }}
+                className="card flex h-36 w-36 shrink-0 items-center justify-center rounded-2xl text-[72px] leading-none lg:h-[282px] lg:w-[315px] lg:text-[140px]"
+                style={heroStyle}
               >
-                {campusAqi}
+                {campusAqi ?? "–"}
               </div>
               <div
                 className="card flex h-36 flex-1 items-center justify-center rounded-[14px] text-[40px] leading-none lg:h-[281px] lg:w-[497px] lg:flex-none lg:text-[100px]"
-                style={{ color: category.color }}
+                style={heroStyle}
               >
-                {category.label}
+                {category?.label ?? "No data"}
               </div>
             </div>
 
@@ -76,11 +100,13 @@ export default function AirQualitySlide() {
                       style={{ backgroundColor: c.color }}
                     />
                   ))}
-                  <div
-                    aria-label={`Current AQI: ${campusAqi}`}
-                    className="absolute inset-y-0 w-1 bg-[#101828]"
-                    style={{ left: `${getAqiScalePosition(campusAqi)}%` }}
-                  />
+                  {campusAqi !== null && (
+                    <div
+                      aria-label={`Current AQI: ${campusAqi}`}
+                      className="absolute inset-y-0 w-1 bg-[#101828]"
+                      style={{ left: `${getAqiScalePosition(campusAqi)}%` }}
+                    />
+                  )}
                 </div>
                 <div className="mt-3 flex justify-between gap-2 text-[10px] leading-4 font-bold text-subtle lg:text-xs">
                   {scaleLabels.map((label) => (
@@ -133,8 +159,8 @@ export default function AirQualitySlide() {
                   className="absolute inset-0 block size-full max-w-none"
                 />
               </div>
-              {sensors.map((sensor) => (
-                <SensorMarker key={sensor.name} {...sensor} />
+              {readings.map((reading) => (
+                <SensorMarker key={reading.sensor.id} {...reading} />
               ))}
             </div>
           </div>
@@ -143,14 +169,14 @@ export default function AirQualitySlide() {
         {/* Recommendations */}
         <div className="grid gap-4 lg:flex lg:justify-between">
           <Recommendation
-            iconBg="#d7fec2"
+            iconBg={TIP_ICON_BG}
             icon={<WindIcon />}
             label="Ventilation"
             text="Open your windows."
             className="lg:w-[545px]"
           />
           <Recommendation
-            iconBg="#fef9c2"
+            iconBg={TIP_ICON_BG}
             icon={
               <img alt="" src="/figma/icon-sun.svg" className="size-8" />
             }
@@ -159,7 +185,7 @@ export default function AirQualitySlide() {
             className="lg:w-[550px]"
           />
           <Recommendation
-            iconBg="#fec2d5"
+            iconBg={TIP_ICON_BG}
             icon={
               <img
                 alt=""
@@ -177,19 +203,16 @@ export default function AirQualitySlide() {
   );
 }
 
-function SensorMarker({
-  name,
-  aqi,
-  x,
-  y,
-  labelX,
-  labelY,
-}: (typeof sensors)[number]) {
+function SensorMarker({ sensor, pm25 }: CurrentReading) {
+  const { name, x, y, labelX, labelY } = sensor;
+  const aqi = pm25 === null ? null : pm25ToAqi(pm25);
+  const category = aqi === null ? null : getAqiCategory(aqi);
   // --m scales marker size and label offsets with the map on small screens.
   const markerStyle: CSSProperties = {
     left: `${x}%`,
     top: `${y}%`,
-    backgroundColor: getAqiCategory(aqi).color,
+    backgroundColor: category?.color ?? OFFLINE_COLOR,
+    color: category?.text ?? OFFLINE_TEXT,
   };
   const labelStyle: CSSProperties = {
     left: `calc(${x}% + var(--m) * ${labelX}px)`,
@@ -199,10 +222,10 @@ function SensorMarker({
   return (
     <>
       <div
-        className="absolute z-10 flex size-[calc(var(--m)*48px)] min-h-6 min-w-6 -translate-1/2 items-center justify-center rounded-full border-[calc(var(--m)*3.75px)] border-white text-[max(10px,calc(var(--m)*14px))] leading-5 font-semibold text-black drop-shadow-[0_10px_7.5px_rgb(0_0_0/0.1)]"
+        className="absolute z-10 flex size-[calc(var(--m)*48px)] min-h-6 min-w-6 -translate-1/2 items-center justify-center rounded-full border-[calc(var(--m)*3.75px)] border-white text-[max(10px,calc(var(--m)*14px))] leading-5 font-semibold drop-shadow-[0_10px_7.5px_rgb(0_0_0/0.1)]"
         style={markerStyle}
       >
-        {aqi}
+        {aqi ?? "–"}
       </div>
       <div
         className="absolute z-20 rounded-[10px] bg-white px-[calc(var(--m)*12px)] py-[calc(var(--m)*6px)] text-[max(9px,calc(var(--m)*14px))] leading-[1.43] font-semibold whitespace-nowrap text-[#0a0a0a] drop-shadow-[0_4px_3px_rgb(0_0_0/0.1)]"
