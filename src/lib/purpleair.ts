@@ -12,12 +12,16 @@ export interface SensorConfig {
   labelY: number;
 }
 
-// Campus PurpleAir sensors (sensor index → display name). Galileo sits
-// north-west of McGregor, which the map positions mirror. The colors only
-// tell the sensors apart on the charts, so they avoid green, yellow and red.
+// Campus PurpleAir sensors (sensor index → display name). Map positions
+// follow each sensor's PurpleAir coordinates, scaled so the four fill the
+// map: Shanahan is the furthest east, Galileo the furthest west. The colors
+// only tell the sensors apart on the charts, so they avoid green, yellow and
+// red.
 export const SENSORS: SensorConfig[] = [
-  { id: 316573, name: "LILAQ-01 McGregor", color: "#7c3aed", x: 66, y: 64, labelX: -78, labelY: 32 },
-  { id: 316607, name: "LILAQ-07 Galileo", color: "#0e8fa8", x: 34, y: 34, labelX: -70, labelY: 32 },
+  { id: 316573, name: "LILAQ-01 McGregor", color: "#7c3aed", x: 23, y: 73, labelX: -78, labelY: 32 },
+  { id: 316607, name: "LILAQ-07 Galileo", color: "#0e8fa8", x: 12, y: 43, labelX: -70, labelY: 32 },
+  { id: 327489, name: "LILAQ-04 Shanahan", color: "#2563eb", x: 88, y: 27, labelX: -78, labelY: 32 },
+  { id: 327491, name: "LILAQ-06 Hixon Court", color: "#be185d", x: 47, y: 52, labelX: -90, labelY: 32 },
 ];
 
 export interface Reading {

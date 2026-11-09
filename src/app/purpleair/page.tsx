@@ -76,20 +76,24 @@ export default async function PurpleAirPage({
 
   return (
     <div className="min-h-dvh">
-      <header
-        className="flex flex-wrap items-center justify-between gap-4 border-b-[1.5px] border-[#c27aff] px-4 py-5 lg:px-12 lg:py-8"
-        style={{
-          background:
-            "linear-gradient(176.6deg, rgb(109 40 217) 0%, rgb(91 33 182) 100%)",
-        }}
-      >
-        <Link href="/" className="text-2xl tracking-tight text-white lg:text-[40px]">
-          LILAQ Lab
-        </Link>
-        <h1 className="text-xl text-white/95 lg:text-[32px]">PurpleAir Sensors</h1>
+      <header className="border-b border-rule">
+        <div className="mx-auto flex max-w-[1824px] items-center px-4 py-5 lg:px-12">
+          <Link href="/" className="flex items-center gap-2.5 text-ink">
+            <svg width="30" height="22" viewBox="0 0 64 46" aria-hidden="true">
+              <path
+                d="M16 44a14 14 0 0 1-2-27.9A18 18 0 0 1 48 12a12 12 0 0 1 2 32Z"
+                className="fill-accent"
+              />
+            </svg>
+            <span className="text-[19px] font-semibold tracking-[-0.02em]">LILAQ Lab</span>
+          </Link>
+        </div>
       </header>
 
-      <main className="mx-auto flex max-w-[1824px] flex-col gap-6 px-4 py-6 lg:px-12 lg:py-10">
+      <main className="mx-auto flex max-w-[1824px] flex-col gap-6 px-4 py-8 lg:px-12 lg:py-12">
+        <h1 className="border-b border-ink pb-4 text-4xl font-semibold tracking-[-0.035em] text-ink lg:pb-5 lg:text-[56px] lg:leading-[1.05]">
+          PurpleAir Sensors
+        </h1>
         {hasApiKey() ? <SensorData days={days} /> : <MissingKey />}
       </main>
     </div>
@@ -119,7 +123,7 @@ async function SensorData({ days }: { days: number }) {
           {RANGES.find((r) => r.days === days)!.label}. Refreshes every 10
           minutes.
         </p>
-        <nav className="flex gap-1 rounded-full bg-white/60 p-1" aria-label="Time range">
+        <nav className="flex gap-1 rounded-full border border-rule p-1" aria-label="Time range">
           {RANGES.map((r) => (
             <Link
               key={r.days}
@@ -127,8 +131,8 @@ async function SensorData({ days }: { days: number }) {
               aria-current={r.days === days ? "page" : undefined}
               className={`rounded-full px-4 py-1.5 text-sm font-medium ${
                 r.days === days
-                  ? "bg-[#6d28d9] text-white"
-                  : "text-[#5b21b6] hover:bg-white"
+                  ? "bg-ink text-white"
+                  : "text-body hover:bg-tint"
               }`}
             >
               {r.label}
@@ -138,7 +142,7 @@ async function SensorData({ days }: { days: number }) {
       </div>
 
       {failed.length > 0 && (
-        <div className="rounded-[14px] border border-[#f44336]/40 bg-white p-4 text-sm text-body">
+        <div className="card border-[#ef4444]/40 p-4 text-sm text-body">
           <p className="font-bold text-[#b91c1c]">
             Couldn&apos;t load {failed.length} sensor
             {failed.length > 1 ? "s" : ""}:
@@ -161,15 +165,15 @@ async function SensorData({ days }: { days: number }) {
 
       {ok.length > 0 && (
         <>
-          <section className="card rounded-[14px] p-4 lg:p-6">
-            <h2 className="text-xl font-bold text-ink">PM2.5 over time</h2>
+          <section className="card p-4 lg:p-6">
+            <h2 className="text-xl font-semibold tracking-[-0.02em] text-ink">PM2.5 over time</h2>
             <div className="mt-4 h-80 lg:h-105">
               <HourlyChart rows={hourlyRows} series={series} />
             </div>
           </section>
 
-          <section className="card rounded-[14px] p-4 lg:p-6">
-            <h2 className="text-xl font-bold text-ink">Daily average by sensor</h2>
+          <section className="card p-4 lg:p-6">
+            <h2 className="text-xl font-semibold tracking-[-0.02em] text-ink">Daily average by sensor</h2>
             <div className="mt-4 h-72 lg:h-85">
               <DailyChart rows={dailyRows} series={series} />
             </div>
@@ -195,20 +199,20 @@ function SensorCard({
   const values = readings.map((r) => r.pm25);
 
   return (
-    <div className="card rounded-[14px] p-5">
+    <div className="card p-5">
       <div className="flex items-center gap-2">
         <span className="size-3 rounded-full" style={{ backgroundColor: color }} />
-        <h2 className="font-bold text-ink">{name}</h2>
-        <span className="ml-auto text-xs text-subtle">#{id}</span>
+        <h2 className="font-semibold text-ink">{name}</h2>
+        <span className="mono-label ml-auto">#{id}</span>
       </div>
       <div className="mt-3 flex items-end gap-3">
-        <p className="text-4xl leading-none text-ink">{latest.pm25.toFixed(1)}</p>
+        <p className="text-4xl leading-none font-medium tracking-[-0.04em] text-ink">{latest.pm25.toFixed(1)}</p>
         <p className="pb-0.5 text-sm text-subtle">µg/m³ latest hour</p>
       </div>
-      <p className="mt-1 text-xs text-subtle">
+      <p className="mono-label mt-1">
         as of {hourFormat.format(latest.time * 1000)}
       </p>
-      <dl className="mt-4 grid grid-cols-2 gap-2 border-t border-[#e5e7eb] pt-3 text-sm">
+      <dl className="mt-4 grid grid-cols-2 gap-2 border-t border-rule pt-3 text-sm">
         <div>
           <dt className="text-subtle">Average</dt>
           <dd className="font-semibold text-ink">{average(values).toFixed(1)}</dd>
@@ -224,13 +228,13 @@ function SensorCard({
 
 function MissingKey() {
   return (
-    <div className="card mx-auto max-w-2xl rounded-[14px] p-6 text-body">
-      <h2 className="text-xl font-bold text-ink">Add your PurpleAir API key</h2>
+    <div className="card mx-auto max-w-2xl p-6 text-body">
+      <h2 className="text-xl font-semibold text-ink">Add your PurpleAir API key</h2>
       <p className="mt-2">
         Create a file named <code>.env.local</code> in the project folder
         with:
       </p>
-      <pre className="mt-3 overflow-x-auto rounded-lg bg-[#f3e8ff] p-3 text-sm">
+      <pre className="mt-3 overflow-x-auto rounded-lg bg-tint p-3 text-sm">
         PURPLEAIR_API_KEY=your-read-key-here
       </pre>
       <p className="mt-3">

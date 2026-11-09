@@ -15,12 +15,13 @@ import {
 // are kept for air quality levels, so they aren't used here.
 const series = [
   { key: "PM1", name: "PM1", color: "#2e96dc" },
-  { key: "PM2_5", name: "PM2.5", color: "#7c3aed" },
+  { key: "PM2_5", name: "PM2.5", color: "#6a4bd1" },
   { key: "PM10", name: "PM10", color: "#b0307a" },
 ] as const;
 
-const axisTick = { fontSize: 12, fill: "#6b7280" };
-const axisLabel = { fontSize: 12, fill: "#808080" };
+const MONO = "var(--font-mono)";
+const axisTick = { fontSize: 13, fill: "#5e5873", fontFamily: MONO };
+const axisLabel = { fontSize: 13, fill: "#5e5873", fontFamily: MONO };
 
 export interface PmTrendRow {
   /** Hour label in campus time, e.g. "4 PM". */
@@ -37,28 +38,31 @@ export default function PmTrendChart({ rows }: { rows: PmTrendRow[] }) {
         data={rows}
         margin={{ top: 5, right: 30, left: 20, bottom: 20 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+        <CartesianGrid stroke="#e4e0ec" vertical={false} />
         <XAxis
           dataKey="label"
           interval={1}
-          stroke="#666"
+          stroke="#e4e0ec"
+          tickLine={false}
           tick={axisTick}
           label={{ value: "Hour", position: "insideBottom", offset: -12, ...axisLabel }}
         />
         <YAxis
           domain={[0, "auto"]}
-          stroke="#666"
+          axisLine={false}
+          tickLine={false}
           tick={axisTick}
           label={{ value: "µg/m³", angle: -90, position: "insideLeft", ...axisLabel }}
         />
         <Tooltip
-          contentStyle={{ border: "1px solid #e5e7eb", borderRadius: 8 }}
+          contentStyle={{ border: "1px solid #e4e0ec", borderRadius: 8, color: "#1c1830" }}
           formatter={(value) => `${Number(value).toFixed(2)} µg/m³`}
         />
         <Legend
           verticalAlign="top"
           height={36}
-          wrapperStyle={{ fontSize: 16 }}
+          iconType="circle"
+          wrapperStyle={{ fontSize: 16, color: "#3b3550" }}
         />
         {series.map(({ key, name, color }) => (
           <Line
@@ -67,7 +71,7 @@ export default function PmTrendChart({ rows }: { rows: PmTrendRow[] }) {
             dataKey={key}
             name={name}
             stroke={color}
-            strokeWidth={2}
+            strokeWidth={2.5}
             dot={false}
           />
         ))}

@@ -1,34 +1,60 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-instrument-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), monospace;
 }
 
+/* Matches the LILAQ Lab website: ink on white, hairline rules, violet accent. */
 @theme {
-  --color-lilaq-bg: #e4b4ff;
-  --color-ink: #1e2939;
-  --color-body: #364153;
-  --color-subtle: #4a5565;
-  --color-violet-title: #8200db;
+  --color-ink: #1c1830;
+  --color-body: #3b3550;
+  --color-subtle: #5e5873;
+  --color-accent: #6a4bd1;
+  --color-accent-soft: #b6a6ea;
+  --color-rule: #e4e0ec;
+  --color-tint: #f3f0fb;
 
   --animate-slide-in: slide-in 0.5s ease-in-out;
 
   @keyframes slide-in {
     from {
       opacity: 0;
-      transform: translateX(50px);
+      transform: translateY(16px);
     }
   }
 }
 
-/* White panel lifted off the purple background. */
+/* Panel set off from the page by a hairline border. */
 @utility card {
   background-color: #fff;
-  filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.1))
-    drop-shadow(0 2px 2px rgb(0 0 0 / 0.1));
+  border: 1px solid var(--color-rule);
+  border-radius: 8px;
+}
+
+/* Small monospace label, as on the website's metrics. */
+@utility mono-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-subtle);
+}
+
+@keyframes slide-progress {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+  }
 }
 
 body {
-  background: var(--color-lilaq-bg);
+  background: #fff;
   color: var(--color-ink);
 }

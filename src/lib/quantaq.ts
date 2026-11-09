@@ -1,10 +1,11 @@
-// Server-only: reads QuantAQ particulate matter readings from Firestore.
-import { AggregateField, FieldPath } from "@google-cloud/firestore";
+// Server-only: reads QuantAQ particulate matter readings from the QuantAQ API.
 import { unstable_cache } from "next/cache";
-import { getDb } from "@/lib/firestore";
 
-// The lab's QuantAQ MODULAIR-PM; its collection is named after the device.
+// The lab's QuantAQ MODULAIR-PM on the Jacobs roof.
 const DEVICE = "MOD-PM-00116";
+const DATA_URL = `https://api.quant-aq.com/v1/devices/${DEVICE}/data/`;
+// The API's page size limit; a day of minute readings takes two pages.
+const PAGE_SIZE = 1000;
 
 export interface HourlyPm {
   /** Start of the hour, as a Unix timestamp in milliseconds. */
@@ -21,55 +22,83 @@ export interface QuantAqSummary {
   hours: HourlyPm[];
 }
 
+/** One calibrated ("final") reading as the API returns it. */
+interface Reading {
+  timestamp: string; // UTC, "YYYY-MM-DDTHH:MM:SS"
+  pm1: number | null;
+  pm25: number | null;
+  pm10: number | null;
+}
+
+interface Page {
+  data: Reading[];
+  meta: { next_url: string | null };
+}
+
 const HOUR_MS = 60 * 60 * 1000;
 const HOURS = 24;
 const REVALIDATE_SECONDS = 10 * 60;
 // Readings older than this no longer count as current conditions.
 const CURRENT_MS = 2 * HOUR_MS;
 
-// Documents are keyed by their UTC timestamp ("YYYY-MM-DDTHH:MM:SS").
-const TIMESTAMP_ID = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
-const parseId = (id: string) => Date.parse(`${id}Z`);
-const toId = (ms: number) => new Date(ms).toISOString().slice(0, 19);
+const parseTimestamp = (ts: string) => Date.parse(`${ts}Z`);
+const toTimestamp = (ms: number) => new Date(ms).toISOString().slice(0, 19);
 
-async function loadSummary(): Promise<QuantAqSummary | null> {
-  const db = getDb();
-  if (!db) throw new Error("No Firestore credentials configured");
-  const readings = db.collection(DEVICE);
-
-  // ":" sorts just after the digits, which skips non-timestamp document IDs.
-  const newest = await readings
-    .where(FieldPath.documentId(), "<", ":")
-    .orderBy(FieldPath.documentId(), "desc")
-    .limit(5)
-    .get();
-  const latestId = newest.docs.find((d) => TIMESTAMP_ID.test(d.id))?.id;
-  if (!latestId) return null;
-
-  // The sensor reports every minute. Firestore averages each hour itself, so
-  // a refresh costs a handful of reads instead of one per reading.
-  const end = parseId(latestId) + 1000;
-  const hours = await Promise.all(
-    Array.from({ length: HOURS }, async (_, i) => {
-      const time = end - (HOURS - i) * HOUR_MS;
-      const result = await readings
-        .where(FieldPath.documentId(), ">=", toId(time))
-        .where(FieldPath.documentId(), "<", toId(time + HOUR_MS))
-        .aggregate({
-          PM1: AggregateField.average("final_pm1"),
-          PM2_5: AggregateField.average("final_pm25"),
-          PM10: AggregateField.average("final_pm10"),
-        })
-        .get();
-      const { PM1, PM2_5, PM10 } = result.data();
-      if (PM1 === null || PM2_5 === null || PM10 === null) return [];
-      return [{ time, PM1, PM2_5, PM10 }];
-    }),
-  );
-  return { latest: parseId(latestId), hours: hours.flat() };
+async function getPage(url: string, apiKey: string): Promise<Page> {
+  const res = await fetch(url, {
+    // The API key is the username, with an empty password.
+    headers: { Authorization: `Basic ${btoa(`${apiKey}:`)}` },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`QuantAQ API responded ${res.status}`);
+  return res.json();
 }
 
-const cachedSummary = unstable_cache(loadSummary, ["quantaq-summary"], {
+async function loadSummary(): Promise<QuantAqSummary | null> {
+  const apiKey = process.env.QUANTAQ_API_KEY;
+  if (!apiKey) throw new Error("QUANTAQ_API_KEY is not set");
+
+  const newest = await getPage(
+    `${DATA_URL}?per_page=1&sort=timestamp,desc`,
+    apiKey,
+  );
+  if (newest.data.length === 0) return null;
+  const latest = parseTimestamp(newest.data[0].timestamp);
+
+  // Every reading in the 24 hours up to and including the newest one. The API
+  // ignores a second filter condition, so readings that arrive after the
+  // newest one are dropped when bucketing instead.
+  const end = latest + 1000;
+  const start = end - HOURS * HOUR_MS;
+  const readings: Reading[] = [];
+  let url: string | null =
+    `${DATA_URL}?per_page=${PAGE_SIZE}&sort=timestamp,asc&filter=timestamp,ge,${toTimestamp(start)}`;
+  while (url) {
+    const page = await getPage(url, apiKey);
+    readings.push(...page.data);
+    url = page.meta.next_url;
+  }
+
+  // Average each hour, skipping readings the sensor couldn't calibrate.
+  const sums = Array.from({ length: HOURS }, () => ({ n: 0, PM1: 0, PM2_5: 0, PM10: 0 }));
+  for (const r of readings) {
+    if (r.pm1 === null || r.pm25 === null || r.pm10 === null) continue;
+    const i = Math.floor((parseTimestamp(r.timestamp) - start) / HOUR_MS);
+    if (i < 0 || i >= HOURS) continue;
+    sums[i].n++;
+    sums[i].PM1 += r.pm1;
+    sums[i].PM2_5 += r.pm25;
+    sums[i].PM10 += r.pm10;
+  }
+  const hours = sums.flatMap(({ n, PM1, PM2_5, PM10 }, i) =>
+    n === 0
+      ? []
+      : [{ time: start + i * HOUR_MS, PM1: PM1 / n, PM2_5: PM2_5 / n, PM10: PM10 / n }],
+  );
+  return { latest, hours };
+}
+
+const cachedSummary = unstable_cache(loadSummary, ["quantaq-api-summary"], {
   revalidate: REVALIDATE_SECONDS,
 });
 

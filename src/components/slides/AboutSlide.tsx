@@ -5,8 +5,6 @@ import SlideHeader from "@/components/SlideHeader";
 const instruments = [
   {
     name: "Purpleair",
-    border: "#d7a5ff",
-    titleColor: "#8200db",
     text: "Affordable sensors that measure PM 2.5. They use light scattering, which means shining a beam of light through the air, and counting the particles that are displaced. These are connected to a larger network of sensors across the world, and the information is published online.",
     image: {
       src: "/figma/instrument-purpleair.png",
@@ -18,8 +16,6 @@ const instruments = [
   },
   {
     name: "QuantAQ",
-    border: "#ac43ff",
-    titleColor: "#8200db",
     text: "Our QuantAQ sensors measure PM 1, PM 2.5, and PM 10 making them versatile in tracking different sizes of particulate matter. Similarly to PurpleAir, QuantAQ sensors also use light scattering. We have four QuantAQs!",
     image: {
       src: "/figma/instrument-quantaq.png",
@@ -31,8 +27,6 @@ const instruments = [
   },
   {
     name: "ACSM",
-    border: "#7400d1",
-    titleColor: "#7400d1",
     text: "Our ACSM sensor works by drawing air in and vaporizing it using heat. The gasses are ionized and passed through a mass spectrometer which separates molecules by their mass and identifies which chemical species they are.",
     image: {
       src: "/figma/instrument-acsm.png",
@@ -46,15 +40,15 @@ const instruments = [
 
 export default function AboutSlide() {
   return (
-    <>
-      <SlideHeader title="About Us" variant="solid" />
-      <div className="flex flex-col gap-8 px-4 pt-6 pb-10 lg:flex-row lg:gap-10 lg:pt-12 lg:pr-0 lg:pb-0 lg:pl-9">
-        <div className="flex flex-col gap-8 lg:h-[966px] lg:w-[860px] lg:shrink-0">
-          <div className="card rounded-[14px] p-5 lg:flex-1 lg:p-8">
-            <h3 className="text-2xl leading-9 text-ink lg:text-[30px]">
+    <div className="flex flex-col gap-8 px-4 pt-8 pb-12 lg:h-full lg:px-[52px] lg:pt-10 lg:pb-0">
+      <SlideHeader title="About Us" />
+      <div className="flex flex-col gap-10 lg:flex-row lg:gap-14">
+        <div className="flex flex-col gap-8 lg:w-[860px] lg:shrink-0 lg:gap-6">
+          <div>
+            <h3 className="text-2xl font-semibold tracking-[-0.025em] text-ink lg:text-[32px]">
               About Us!
             </h3>
-            <p className="mt-2 text-base leading-[29.25px] text-black lg:w-[797px] lg:text-lg">
+            <p className="mt-3 text-base leading-[1.55] text-body lg:text-lg">
               We are LILAQ, a group of students and professors across
               disciplines at Harvey Mudd College united with the shared mission
               of improving knowledge around air quality. We manage a network of
@@ -62,13 +56,19 @@ export default function AboutSlide() {
               analyze the data from these sensors to understand more about the
               air around us.
             </p>
-            <h4 className="mt-[18px] text-xl leading-8 text-ink lg:text-2xl">
+          </div>
+
+          <div>
+            <h4 className="text-xl font-semibold tracking-[-0.02em] text-ink lg:text-2xl">
               Some of Our Instruments!
             </h4>
-            <ul className="mt-4 flex flex-col gap-8 lg:-ml-[26px] lg:gap-12">
+            <ul className="mt-4 border-b border-rule">
               {instruments.map((inst) => (
-                <li key={inst.name} className="flex items-center gap-2">
-                  <div className="hidden w-[106px] shrink-0 justify-center sm:flex">
+                <li
+                  key={inst.name}
+                  className="flex items-center gap-5 border-t border-rule py-5 lg:gap-6 lg:py-4"
+                >
+                  <div className="hidden size-[104px] shrink-0 items-center justify-center rounded-md bg-tint sm:flex">
                     <div className={`relative overflow-hidden ${inst.image.frame}`}>
                       <Image
                         src={inst.image.src}
@@ -79,17 +79,11 @@ export default function AboutSlide() {
                       />
                     </div>
                   </div>
-                  <div
-                    className="flex flex-col gap-2 border-l-[3.75px] pl-[19.746px] lg:min-h-[127px]"
-                    style={{ borderColor: inst.border }}
-                  >
-                    <p
-                      className="text-xl leading-7 font-bold"
-                      style={{ color: inst.titleColor }}
-                    >
+                  <div className="flex flex-col gap-1.5">
+                    <p className="text-xl font-semibold tracking-[-0.015em] text-ink">
                       {inst.name}
                     </p>
-                    <p className="text-base leading-[22.75px] text-body lg:text-xl">
+                    <p className="text-base leading-[1.5] text-body lg:text-lg">
                       {inst.text}
                     </p>
                   </div>
@@ -98,22 +92,22 @@ export default function AboutSlide() {
             </ul>
           </div>
 
-          <div className="card flex flex-col gap-4 rounded-[14px] p-6 lg:h-[162px] lg:pb-0">
-            <h3 className="text-2xl leading-8 text-ink">Get Involved</h3>
-            <div className="flex flex-col gap-2">
-              <p className="text-base leading-7 font-bold text-body lg:text-lg">
-                Interested in joining our lab or learning more? Please reach
-                out!
-              </p>
-              <p className="text-base leading-6 font-semibold text-[#9810fa]">
-                ___ insert lab email here
-              </p>
-            </div>
+          <div className="flex flex-col gap-2 rounded-lg bg-ink p-6 lg:px-8">
+            <h3 className="text-2xl font-semibold tracking-[-0.03em] text-white lg:text-[28px]">
+              Get Involved
+            </h3>
+            <p className="text-lg leading-snug text-[#d9d4e6] lg:text-2xl">
+              Interested in joining our lab or learning more? Please reach
+              out!
+            </p>
+            <p className="font-mono text-sm text-[#d9d4e6] lg:text-base">
+              ___ insert lab email here
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-col gap-[22px] lg:w-[952px] lg:shrink-0">
-          <div className="card relative aspect-[952/824] overflow-hidden rounded-[14px]">
+        <figure className="flex min-w-0 flex-1 flex-col gap-4">
+          <div className="relative aspect-[952/824] overflow-hidden rounded-lg">
             <Image
               src="/figma/team-photo.jpg"
               alt="LILAQ lab members standing together outside"
@@ -122,14 +116,13 @@ export default function AboutSlide() {
               className="absolute top-[-26.92%] left-[-0.02%] h-[153.73%] w-full max-w-none"
             />
           </div>
-          <div className="card rounded-[14px] p-2.5 lg:h-[120px]">
-            <p className="text-lg leading-7 text-ink lg:text-[30px] lg:leading-10">
-              From left to right: Grey, Prof. Hawkins, Prof. Medero, Beverly,
-              Nikhita, Aria, Ben, Esteban, Aadi
-            </p>
-          </div>
-        </div>
+          <figcaption className="text-base leading-snug text-body lg:text-xl">
+            <span className="mono-label mr-2 lg:text-sm">From left to right:</span>
+            Grey, Prof. Hawkins, Prof. Medero, Beverly, Nikhita, Aria, Ben,
+            Esteban, Aadi
+          </figcaption>
+        </figure>
       </div>
-    </>
+    </div>
   );
 }

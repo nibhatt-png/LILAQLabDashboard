@@ -7,18 +7,19 @@ export interface AqiCategory {
   text: string;
 }
 
-const DARK_TEXT = "#1e2939";
+const DARK_TEXT = "#1c1830";
 const LIGHT_TEXT = "#ffffff";
 
-// EPA AQI bands, in the colors used by the LILAQ display. These are the only
-// place green, yellow, orange and red appear, so they always mean good-to-bad.
+// EPA AQI bands, in the same colors as the LILAQ Lab website. These are the
+// only place green, yellow, orange and red appear, so they always mean
+// good-to-bad.
 export const AQI_CATEGORIES: AqiCategory[] = [
-  { label: "Good", max: 50, color: "#4caf50", text: DARK_TEXT },
-  { label: "Moderate", max: 100, color: "#ffeb3b", text: DARK_TEXT },
-  { label: "Somewhat Unhealthy", max: 150, color: "#ff9800", text: DARK_TEXT },
-  { label: "Unhealthy", max: 200, color: "#f44336", text: LIGHT_TEXT },
-  { label: "Very Unhealthy", max: 300, color: "#9c27b0", text: LIGHT_TEXT },
-  { label: "Hazardous", max: 500, color: "#880e4f", text: LIGHT_TEXT },
+  { label: "Good", max: 50, color: "#22c55e", text: DARK_TEXT },
+  { label: "Moderate", max: 100, color: "#eab308", text: DARK_TEXT },
+  { label: "Somewhat Unhealthy", max: 150, color: "#f97316", text: DARK_TEXT },
+  { label: "Unhealthy", max: 200, color: "#ef4444", text: LIGHT_TEXT },
+  { label: "Very Unhealthy", max: 300, color: "#8f3f97", text: LIGHT_TEXT },
+  { label: "Hazardous", max: 500, color: "#7e0023", text: LIGHT_TEXT },
 ];
 
 // EPA PM2.5 breakpoints (2024 revision): [PM2.5 low, PM2.5 high, AQI low, AQI high].
