@@ -2,6 +2,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import AutoRefresh from "@/components/AutoRefresh";
 import CampusMap from "@/components/CampusMap";
+import { projectToMap } from "@/components/campusMapData";
 import SlideHeader from "@/components/SlideHeader";
 import {
   AQI_CATEGORIES,
@@ -143,6 +144,9 @@ export default async function AirQualitySlide() {
             className="relative aspect-[825/592] w-full overflow-hidden rounded-lg bg-[#eaf6ee] [--m:0.45] sm:[--m:0.7] lg:[--m:1]"
           >
             <CampusMap className="absolute inset-0 block size-full" />
+            <span className="absolute right-0 bottom-0 z-30 rounded-tl bg-white/80 px-1.5 py-0.5 font-mono text-[9px] text-subtle lg:text-[11px]">
+              © OpenStreetMap contributors
+            </span>
             {readings.map((reading) => (
               <SensorMarker key={reading.sensor.id} {...reading} />
             ))}
@@ -179,7 +183,8 @@ export default async function AirQualitySlide() {
 }
 
 function SensorMarker({ sensor, pm25 }: CurrentReading) {
-  const { name, x, y, labelX, labelY } = sensor;
+  const { name, labelX, labelY } = sensor;
+  const { x, y } = projectToMap(sensor.lat, sensor.lon);
   const aqi = pm25 === null ? null : pm25ToAqi(pm25);
   const category = aqi === null ? null : getAqiCategory(aqi);
   // --m scales marker size and label offsets with the map on small screens.

@@ -4,24 +4,21 @@ export interface SensorConfig {
   id: number;
   name: string;
   color: string;
-  /** Marker center, as a percentage of the campus map. */
-  x: number;
-  y: number;
+  /** Sensor location, as registered on PurpleAir; places its map marker. */
+  lat: number;
+  lon: number;
   /** Label offset from the marker center, in px at full (1920px) scale. */
   labelX: number;
   labelY: number;
 }
 
-// Campus PurpleAir sensors (sensor index → display name). Map positions
-// follow each sensor's PurpleAir coordinates, scaled so the four fill the
-// map: Shanahan is the furthest east, Galileo the furthest west. The colors
-// only tell the sensors apart on the charts, so they avoid green, yellow and
-// red.
+// The outdoor campus PurpleAir sensors (sensor index → display name). The
+// colors only tell the sensors apart on the charts, so they avoid green,
+// yellow and red.
 export const SENSORS: SensorConfig[] = [
-  { id: 316573, name: "LILAQ-01 McGregor", color: "#7c3aed", x: 23, y: 73, labelX: -78, labelY: 32 },
-  { id: 316607, name: "LILAQ-07 Galileo", color: "#0e8fa8", x: 12, y: 43, labelX: -70, labelY: 32 },
-  { id: 327489, name: "LILAQ-04 Shanahan", color: "#2563eb", x: 88, y: 27, labelX: -78, labelY: 32 },
-  { id: 327491, name: "LILAQ-06 Hixon Court", color: "#be185d", x: 47, y: 52, labelX: -90, labelY: 32 },
+  { id: 327489, name: "LILAQ-04 Shanahan", color: "#2563eb", lat: 34.106415, lon: -117.711006, labelX: -78, labelY: 32 },
+  { id: 327491, name: "LILAQ-06 Hixon Court", color: "#be185d", lat: 34.106068, lon: -117.71199, labelX: -90, labelY: 32 },
+  { id: 176211, name: "Jacobs 3 Roof", color: "#0e8fa8", lat: 34.105663, lon: -117.711845, labelX: -52, labelY: 32 },
 ];
 
 export interface Reading {
