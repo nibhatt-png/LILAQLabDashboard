@@ -100,9 +100,7 @@ export default function AboutSlide() {
               Interested in joining our lab or learning more? Please reach
               out!
             </p>
-            <p className="font-mono text-sm text-[#d9d4e6] lg:text-base">
-              ___ insert lab email here
-            </p>
+            {/* TODO: add the lab's contact email here. */}
           </div>
         </div>
 
