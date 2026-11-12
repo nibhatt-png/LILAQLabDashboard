@@ -14,7 +14,7 @@ import {
 } from "@/lib/purpleair";
 
 export const metadata: Metadata = {
-  title: "PurpleAir Sensors · LILAQ Lab",
+  title: "PurpleAir Sensors · LILAQ",
 };
 
 const RANGES = [
@@ -85,7 +85,7 @@ export default async function PurpleAirPage({
                 className="fill-accent"
               />
             </svg>
-            <span className="text-[19px] font-semibold tracking-[-0.02em]">LILAQ Lab</span>
+            <span className="text-[19px] font-semibold tracking-[-0.02em]">LILAQ</span>
           </Link>
         </div>
       </header>

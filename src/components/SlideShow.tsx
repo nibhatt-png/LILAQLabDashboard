@@ -12,7 +12,8 @@ import {
 // stage is scaled to fit the viewport; on small screens the slides stack.
 const STAGE_WIDTH = 1920;
 const STAGE_HEIGHT = 1187;
-const ROTATE_MS = 15_000;
+// How long each slide stays up before the next one.
+const ROTATE_MS = 30_000;
 
 function subscribeToResize(callback: () => void) {
   window.addEventListener("resize", callback);
@@ -87,7 +88,7 @@ export default function SlideShow({ slides }: { slides: Slide[] }) {
                 />
               </svg>
               <span className="text-[19px] font-semibold tracking-[-0.02em] lg:text-2xl">
-                LILAQ Lab
+                LILAQ
               </span>
             </a>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[15px] lg:gap-10 lg:text-lg">

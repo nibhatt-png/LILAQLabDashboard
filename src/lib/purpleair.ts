@@ -18,7 +18,9 @@ export interface SensorConfig {
 export const SENSORS: SensorConfig[] = [
   { id: 327489, name: "LILAQ-04 Shanahan", color: "#2563eb", lat: 34.106415, lon: -117.711006, labelX: -78, labelY: 32 },
   { id: 327491, name: "LILAQ-06 Hixon Court", color: "#be185d", lat: 34.106068, lon: -117.71199, labelX: -90, labelY: 32 },
-  { id: 176211, name: "Jacobs 3 Roof", color: "#0e8fa8", lat: 34.105663, lon: -117.711845, labelX: -52, labelY: 32 },
+  // Jacobs 5 rather than Jacobs 3 (176211), which has been faulty and offline
+  // since Nov 6, 2026. Both are on the Jacobs roof.
+  { id: 176359, name: "Jacobs 5 Roof", color: "#0e8fa8", lat: 34.10565, lon: -117.71177, labelX: -52, labelY: 32 },
 ];
 
 export interface Reading {

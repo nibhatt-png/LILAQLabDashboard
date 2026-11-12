@@ -16,8 +16,8 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LILAQ Lab",
-  description: "Live air quality at Harvey Mudd College from the LILAQ Lab",
+  title: "LILAQ",
+  description: "Live air quality at Harvey Mudd College from LILAQ",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
